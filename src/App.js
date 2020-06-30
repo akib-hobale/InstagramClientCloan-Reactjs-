@@ -8,6 +8,7 @@ import Home from "./components/screens/Home";
 import Profile from "./components/screens/Profile";
 import CreatePost from "./components/screens/CreatePost";
 import {reducer,initialState} from './reducers/userReducer';
+import decode from 'jwt-decode';
 
 export const UserContext = createContext();
 
@@ -15,17 +16,17 @@ export const UserContext = createContext();
 
 const Routing = () => {
   const history = useHistory()
-const {state,dispatch}=useContext(UserContext)
-  useEffect(()=>{
-    const user = localStorage.getItem('jwt');
-    
-    if(user){
-      dispatch({type:"USER",payload:user})
-      history.push('/');
-    } else {
-      history.push('/signin')
-    }
-  },[])
+// const {state,dispatch}=useContext(UserContext)
+//   useEffect(()=>{
+//     const user = localStorage.getItem('jwt');     
+//     if(user){
+//       let userInformation = decode(user);
+//       dispatch({type:"USER",payload:userInformation})
+//       history.push('/');
+//     } else {
+//       history.push('/signin')
+//     }
+//   },[])
   return (
     <Switch>
       <Route exact path="/">

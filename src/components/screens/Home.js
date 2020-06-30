@@ -1,46 +1,82 @@
-import React from 'react';
+import React, { useState, useEffect } from "react";
 
-const Home = () =>{
-    return (
-       <div className="home">
-           <div className="card home-card">
-               <h5>Akib</h5>
-               <div className="card-image">
-                   <img src="https://images.unsplash.com/photo-1498550744921-75f79806b8a7?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60"/>
-               </div>
-               <div className="card-content">
-               <i className="material-icons" style={{color:"red"}}>favorite</i>
-                    <h6>title</h6>
-                    <p>this is amazing post</p>
-                    <input type="text" placeholder="comment...."/>
-               </div>
-           </div>
-           <div className="card home-card">
-               <h5>Akib</h5>
-               <div className="card-image">
-                   <img src="https://images.unsplash.com/photo-1498550744921-75f79806b8a7?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60"/>
-               </div>
-               <div className="card-content">
-               <i className="material-icons" style={{color:"red"}}>favorite</i>
-                    <h6>title</h6>
-                    <p>this is amazing post</p>
-                    <input type="text" placeholder="comment...."/>
-               </div>
-           </div>
-           <div className="card home-card">
-               <h5>Akib</h5>
-               <div className="card-image">
-                   <img src="https://images.unsplash.com/photo-1498550744921-75f79806b8a7?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60"/>
-               </div>
-               <div className="card-content">
-               <i className="material-icons" style={{color:"red"}}>favorite</i>
-                    <h6>title</h6>
-                    <p>this is amazing post</p>
-                    <input type="text" placeholder="comment...."/>
-               </div>
-           </div> 
-       </div>
-    )
-}
+const Home = () => {
+  const [data, setData] = useState([]);
+  useEffect(() => {
+    fetch("/post/allpost", {
+      'Authorization': localStorage.getItem("jwt"),
+    })
+      .then((res) => res.json())
+      .then((result) => {
+        setData(result.result);
+      });
+  }, []);
+
+  const likePost= (id)=>{
+    fetch('/post/like',{
+      method:"put",
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization":localStorage.getItem("jwt")
+      },
+      body:JSON.stringify({postId:id})
+    }).then(res=>res.json()).then(result=>{
+      const newData = data.map(item=>{
+        if(item._id === result._id){
+          return result;
+        } else {
+          return item;
+        }
+      })
+      setData(newData)
+    })
+  }
+
+  const UnlikePost= (id)=>{
+    fetch('/post/unlike',{
+      method:"put",
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization":localStorage.getItem("jwt")
+      },
+      body:JSON.stringify({postId:id})
+    }).then(res=>res.json()).then(result=>{
+      const newData = data.map(item=>{
+        if(item._id === result._id){
+          return result;
+        } else {
+          return item;
+        }
+      })
+      setData(newData)
+      console.log(result);
+    })
+  }
+  return (
+    <div className="home">
+      {data.map((item) => {
+        return (
+          <div className="card home-card" key={item._id}>
+            <h5>{item.posts[0].name}</h5>
+            <div className="card-image">
+              <img src={`http://localhost:5000/${item.photo}`}/>
+            </div>
+            <div className="card-content">
+              <i className="material-icons" style={{ color: "red" }}>
+                favorite
+              </i>
+              <i className="material-icons" onClick={()=>{likePost(item._id)}}>thumb_up</i>
+              <i className="material-icons" onClick={()=>{UnlikePost(item._id)}}>thumb_down</i>
+        <h6>{item.likes.length ? 0 : null } likes</h6>
+        <h6>{item.title}</h6>
+        <p>{item.body}</p>
+              <input type="text" placeholder="comment...." />
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
 
 export default Home;
